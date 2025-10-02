@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>貸付金額管理アプリ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #f4f7f8;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    margin-top: 40px;
+    font-size: 2em;
+    color: #333;
+    text-shadow: 1px 1px 2px #aaa;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    padding: 20px 30px;
+    margin: 20px 0;
+    width: 400px;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: calc(100% - 20px);
+    padding: 8px 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    transition: 0.3s;
+  }
+
+  input:focus {
+    border-color: #007BFF;
+    outline: none;
+  }
+
+  button {
+    padding: 10px 20px;
+    margin: 5px 5px 0 0;
+    border: none;
+    border-radius: 6px;
+    background: #007BFF;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background: #0056b3;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: center;
+  }
+
+  thead {
+    background: #007BFF;
+    color: white;
+    border-radius: 6px;
+  }
+
+  tbody tr {
+    background: #f9f9f9;
+    transition: 0.3s;
+  }
+
+  tbody tr:hover {
+    background: #e6f0ff;
+  }
+</style>
+</head>
+<body>
+
+<h1>貸付金額管理アプリ</h1>
+
+<div class="card">
+  <h2>貸付登録</h2>
+  名前: <input type="text" id="nameInput" placeholder="名前を入力">
+  貸付額: <input type="number" id="amountInput" placeholder="貸付額を入力">
+  <button onclick="addLoan()">登録</button>
+</div>
+
+<div class="card">
+  <h2>貸付額変更</h2>
+  名前: <input type="text" id="changeNameInput" placeholder="名前を入力">
+  増減額: <input type="number" id="changeAmountInput" placeholder="増減額を入力">
+  <button onclick="updateLoan(true)">増やす</button>
+  <button onclick="updateLoan(false)">減らす</button>
+</div>
+
+<div class="card">
+  <h2>貸付一覧</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>名前</th>
+        <th>貸付額</th>
+      </tr>
+    </thead>
+    <tbody id="loanTableBody"></tbody>
+  </table>
+</div>
+
+<script>
+let loans = [];
+
+function addLoan() {
+    const name = document.getElementById('nameInput').value.trim();
+    const amount = parseFloat(document.getElementById('amountInput').value);
+    if(!name || isNaN(amount)) {
+        alert('名前と貸付額を正しく入力してください');
+        return;
+    }
+    if(loans.find(l => l.name === name)) {
+        alert('この名前はすでに存在します');
+        return;
+    }
+    loans.push({ name, amount });
+    document.getElementById('nameInput').value = '';
+    document.getElementById('amountInput').value = '';
+    renderTable();
+}
+
+function updateLoan(isIncrease) {
+    const name = document.getElementById('changeNameInput').value.trim();
+    const amount = parseFloat(document.getElementById('changeAmountInput').value);
+    if(!name || isNaN(amount)) {
+        alert('名前と増減額を正しく入力してください');
+        return;
+    }
+    const loan = loans.find(l => l.name === name);
+    if(!loan) {
+        alert('その名前は存在しません');
+        return;
+    }
+    if(isIncrease) {
+        loan.amount += amount;
+    } else {
+        loan.amount -= amount;
+        if(loan.amount < 0) loan.amount = 0;
+    }
+    document.getElementById('changeNameInput').value = '';
+    document.getElementById('changeAmountInput').value = '';
+    renderTable();
+}
+
+function renderTable() {
+    const tbody = document.getElementById('loanTableBody');
+    tbody.innerHTML = '';
+    loans.forEach(l => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${l.name}</td><td>${l.amount.toFixed(2)}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+</script>
+
+</body>
+</html>
